@@ -18,7 +18,18 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run publish
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      - run: npm run dist
+      - name: Normalizar nombres de actualización
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')
+          Copy-Item "dist/Recomendapp Setup $version.exe" "dist/Recomendapp-Setup-$version.exe"
+          Copy-Item "dist/Recomendapp Setup $version.exe.blockmap" "dist/Recomendapp-Setup-$version.exe.blockmap"
+      - name: Publicar archivos del Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/Recomendapp-Setup-*.exe
+            dist/Recomendapp-Setup-*.exe.blockmap
+            dist/latest.yml
