@@ -31,7 +31,7 @@
       <div class="connections">
         <button class="connect spotify" data-service="Spotify"><i>●</i><span><small>Conectar</small>Spotify</span><b>+</b></button>
         <button class="connect lastfm" data-service="Last.fm"><i>◉</i><span><small>Conectar</small>Last.fm</span><b>+</b></button>
-        <button class="connect youtube" data-service="YouTube"><i>▶</i><span><small>Conectar</small>YouTube</span><b>+</b></button>
+        <button class="connect soundcloud" data-service="SoundCloud"><i>☁</i><span><small>Conectar</small>SoundCloud</span><b>+</b></button>
       </div>
     </section>
 
@@ -86,7 +86,8 @@
       <label>Usuario de Last.fm<input id="lastfmUser" autocomplete="off" placeholder="Tu nombre de usuario"></label>
       <label>API key de Last.fm<input id="lastfmApiKey" type="password" autocomplete="off" placeholder="32 caracteres"></label>
       <label>Client ID de Spotify<input id="spotifyClientId" autocomplete="off" placeholder="Client ID de tu aplicación"></label>
-      <label>Client ID de Google / YouTube<input id="googleClientId" autocomplete="off" placeholder="Cliente OAuth de aplicación de escritorio"></label>
+      <label>Client ID de SoundCloud <small>requiere una app registrada en SoundCloud</small><input id="soundcloudClientId" autocomplete="off" placeholder="Client ID de tu aplicación"></label>
+      <label>Client secret de SoundCloud<input id="soundcloudClientSecret" type="password" autocomplete="off" placeholder="Se guardará cifrado en Windows"></label>
       <div class="dialog-actions"><button class="secondary" value="cancel">Cancelar</button><button class="primary" id="saveSettings" value="default">Guardar conexiones</button></div>
     </form>
   </dialog>

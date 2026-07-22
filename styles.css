@@ -22,7 +22,7 @@ h1 em { font-family:Georgia,serif; font-weight:400; }
 .connections { display:flex; gap:12px; margin-top:35px; flex-wrap:wrap; }
 .connect { width:210px; padding:13px 15px; border:1px solid var(--ink); border-radius:4px; background:transparent; display:flex; align-items:center; text-align:left; gap:12px; cursor:pointer; transition:.2s; }
 .connect:hover,.connect.connected { background:var(--ink); color:var(--paper); transform:translateY(-2px); }
-.connect i { font-style:normal; font-size:21px; }.spotify i{color:#1ed760}.lastfm i{color:#e31b23}.youtube i{color:#ff0033}
+.connect i { font-style:normal; font-size:21px; }.spotify i{color:#1ed760}.lastfm i{color:#e31b23}.soundcloud i{color:#ff5500}
 .connect span { display:flex; flex-direction:column; font-weight:600; }.connect small { font-size:9px; font-weight:500; opacity:.65; text-transform:uppercase; letter-spacing:.1em; }
 .connect b { margin-left:auto; font-size:22px; font-weight:400; }
 .discovery { background:var(--ink); color:var(--paper); padding:6.5vw 5vw; }
