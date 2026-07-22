@@ -20,6 +20,7 @@
       <button class="nav-link" data-view="neighbors">Neighbors</button>
       <button class="nav-link" data-view="compare">Compare</button>
       <button class="nav-link" data-view="maxicover">Maxicover</button>
+      <button class="nav-link" data-view="library">Playlists</button>
       <button class="nav-link" id="savedNav">Guardados <span id="savedCount">0</span></button>
     </nav>
     <button class="profile" id="settingsBtn" aria-label="Configuración">⚙</button>
@@ -90,6 +91,7 @@
       </div>
       <div class="compare-result" id="compareResult" hidden><div class="result-head"><div><span class="kicker">RESULTADO</span><h2 id="resultTitle"></h2></div><button class="save-result" id="saveCompareBtn">＋ Guardar como playlist</button></div><div class="result-tracks" id="resultTracks"></div></div>
     </section>
+    <section class="library-view" id="libraryView" hidden><div class="compare-hero"><span class="kicker">FUENTE MAESTRA</span><h1>Playlists internas</h1><p>Las recomendaciones se guardan aquí primero y se sincronizan con Spotify o YouTube cuando cada servicio esté disponible.</p></div><div class="library-layout"><aside id="libraryPlaylists" class="library-playlists"></aside><section id="libraryDetail" class="library-detail"><div class="neighbors-status">Selecciona una playlist interna.</div></section></div></section>
   </main>
 
   <dialog id="settingsDialog">
