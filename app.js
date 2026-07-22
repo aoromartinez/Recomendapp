@@ -14,6 +14,10 @@ const neighborStore=JSON.parse(localStorage.getItem('recomendapp-neighbors')||'{
 let currentNeighborNames=[];
 let compareMode='track',compareTracks=[];
 let syncCancelled=false;
+let syncLastProgress=0,syncHintTimer;
+const tentativeHints=['Spotify puede estar tardando en responder para esta canción.','Es posible que Spotify esté regulando temporalmente el número de consultas.','La conexión de red puede estar esperando una respuesta del catálogo.','Esta canción puede requerir más tiempo para encontrar una coincidencia exacta.'];
+function markSyncProgress(message){syncLastProgress=Date.now();if(message)syncHint.textContent=message;}
+function startSyncHints(){clearInterval(syncHintTimer);syncLastProgress=Date.now();let index=0;syncHint.textContent='La primera sincronización busca cada canción nueva en el catálogo de Spotify.';syncHintTimer=setInterval(()=>{const seconds=Math.floor((Date.now()-syncLastProgress)/1000);if(seconds>=7)syncHint.textContent=`Sin avance durante ${seconds}s. Posible causa: ${tentativeHints[index++%tentativeHints.length]}`;},4000);}
 
 function render(){
   const list=artists.filter(a=>a.mood.includes(activeMood)).slice(0,3);
@@ -26,6 +30,7 @@ document.querySelectorAll('.mood').forEach(btn=>btn.addEventListener('click',()=
 grid.addEventListener('click',e=>{const btn=e.target.closest('.save');if(!btn)return;const name=btn.dataset.artist;saved.has(name)?saved.delete(name):saved.add(name);localStorage.setItem('recomendapp-saved',JSON.stringify([...saved]));render();notify(saved.has(name)?`${name} guardado en tu colección`:`${name} eliminado`)});
 const api=window.musicAPI;
 if(api)api.version().then(version=>document.querySelector('#appVersion').textContent=`v${version}`);
+if(api)api.onSpotifyRateLimit(({seconds,attempt})=>{syncLastProgress=Date.now();syncHint.textContent=`Spotify confirmó un límite temporal. Esperando ${seconds}s antes de reintentar (${attempt}/5).`;});
 const dialog=document.querySelector('#settingsDialog');
 async function loadConfig(){if(!api)return;const c=await api.getConfig();lastfmUser.value=c.lastfmUser;lastfmApiKey.value=c.lastfmApiKey;spotifyClientId.value=c.spotifyClientId;setConnected('Last.fm',!!(c.lastfmUser&&c.lastfmApiKey));setConnected('Spotify',c.spotifyConnected);if(c.lastfmUser&&c.lastfmApiKey)await loadRealRecommendations();}
 function setConnected(service,on){const btn=[...document.querySelectorAll('.connect')].find(b=>b.dataset.service===service);btn.classList.toggle('connected',on);btn.querySelector('small').textContent=on?'Conectado':'Conectar';btn.querySelector('b').textContent=on?'✓':'+';}
@@ -70,7 +75,7 @@ async function spotifyUrisFast(tracks,btn){
   const pending=unique.filter(t=>!uriMap.has(`${t.artist}\u0000${t.name}`.toLowerCase()));
   let cursor=0,completed=0;
   const persist=()=>localStorage.setItem('recomendapp-track-uri-cache',JSON.stringify([...uriMap]));
-  async function worker(){while(cursor<pending.length){if(syncCancelled)return;const track=pending[cursor++];syncCurrent.textContent=`Buscando: ${track.artist} — ${track.name}`;const key=`${track.artist}\u0000${track.name}`.toLowerCase();const q=encodeURIComponent(`track:${track.name} artist:${track.artist}`);const result=await api.spotify(`/search?q=${q}&type=track&limit=1`);uriMap.set(key,result.tracks?.items?.[0]?.uri||'');completed++;btn.textContent=`Spotify: ${completed}/${pending.length}`;syncStage.textContent='Buscando canciones en Spotify';syncNumbers.textContent=`${completed} / ${pending.length}`;syncBar.style.width=`${pending.length?completed/pending.length*100:100}%`;if(completed%20===0)persist();}}
+  async function worker(){while(cursor<pending.length){if(syncCancelled)return;const track=pending[cursor++];syncCurrent.textContent=`Buscando: ${track.artist} — ${track.name}`;markSyncProgress(`Consultando el catálogo para ${track.artist} — ${track.name}.`);const key=`${track.artist}\u0000${track.name}`.toLowerCase();const q=encodeURIComponent(`track:${track.name} artist:${track.artist}`);const result=await api.spotify(`/search?q=${q}&type=track&limit=1`);uriMap.set(key,result.tracks?.items?.[0]?.uri||'');completed++;btn.textContent=`Spotify: ${completed}/${pending.length}`;syncStage.textContent='Buscando canciones en Spotify';syncNumbers.textContent=`${completed} / ${pending.length}`;syncBar.style.width=`${pending.length?completed/pending.length*100:100}%`;markSyncProgress(`Última coincidencia completada: ${track.artist} — ${track.name}.`);if(completed%20===0)persist();}}
   if(pending.length)await Promise.all(Array.from({length:Math.min(10,pending.length)},worker));
   persist();
   if(syncCancelled)throw new Error('__SYNC_CANCELLED__');
@@ -78,7 +83,7 @@ async function spotifyUrisFast(tracks,btn){
 }
 async function buildNeighborsPlaylistFast(){
   if(!currentNeighborNames.length){notify('Añade al menos un vecino primero');return;}
-  const btn=document.querySelector('#syncPlaylistBtn');syncCancelled=false;cancelSyncBtn.disabled=false;btn.disabled=true;btn.textContent='Leyendo scrobbles…';syncProgress.hidden=false;syncStage.textContent='Leyendo Last.fm';syncNumbers.textContent='';syncBar.style.width='0%';syncCurrent.textContent='Recopilando scrobbles de tus neighbors…';
+  const btn=document.querySelector('#syncPlaylistBtn');syncCancelled=false;startSyncHints();cancelSyncBtn.disabled=false;btn.disabled=true;btn.textContent='Leyendo scrobbles…';syncProgress.hidden=false;syncStage.textContent='Leyendo Last.fm';syncNumbers.textContent='';syncBar.style.width='0%';syncCurrent.textContent='Recopilando scrobbles de tus neighbors…';
   try{
     const days=Number(neighborPeriod.value);localStorage.setItem('recomendapp-neighbor-period',days);const from=Math.floor((Date.now()-days*86400000)/1000);const tracks=[];
     for(const name of currentNeighborNames){const limit=neighborStore[name]?.limit??250;const userTracks=await allScrobbles(name,from,limit,(user,loaded,total)=>btn.textContent=`${user}: ${loaded}/${total} scrobbles…`).catch(error=>{if(error.message==='__SYNC_CANCELLED__')throw error;return[]});tracks.push(...userTracks);}
@@ -89,7 +94,7 @@ async function buildNeighborsPlaylistFast(){
     btn.textContent=`Guardando ${found.length} scrobbles…`;await api.spotify(`/playlists/${playlistId}/items`,{method:'PUT',body:{uris:found.slice(0,100)}});
     for(let i=100;i<found.length;i+=100){btn.textContent=`Guardando ${Math.min(i+100,found.length)}/${found.length}…`;await api.spotify(`/playlists/${playlistId}/items`,{method:'POST',body:{uris:found.slice(i,i+100)}});}
     notify(`${found.length}/${tracks.length} scrobbles · ${resolved.cached} coincidencias desde caché`);if(playlistUrl)window.open(playlistUrl,'_blank');
-  }catch(e){if(e.message==='__SYNC_CANCELLED__'){syncStage.textContent='Búsqueda detenida';syncCurrent.textContent='El progreso encontrado quedó guardado para la próxima vez.';notify('Búsqueda detenida')}else if(/scope|permission|403/i.test(e.message)){notify('Spotify necesita permisos. Autoriza de nuevo…');try{await api.connectSpotify();await buildNeighborsPlaylistFast();}catch(authError){notify(authError.message)}}else notify(e.message);}finally{btn.disabled=false;cancelSyncBtn.disabled=true;btn.textContent='♫ Actualizar playlist';if(!syncCancelled){syncStage.textContent='Proceso finalizado';syncBar.style.width='100%';}}
+  }catch(e){if(e.message==='__SYNC_CANCELLED__'){syncStage.textContent='Búsqueda detenida';syncCurrent.textContent='El progreso encontrado quedó guardado para la próxima vez.';notify('Búsqueda detenida')}else if(/scope|permission|403/i.test(e.message)){notify('Spotify necesita permisos. Autoriza de nuevo…');try{await api.connectSpotify();await buildNeighborsPlaylistFast();}catch(authError){notify(authError.message)}}else notify(e.message);}finally{clearInterval(syncHintTimer);btn.disabled=false;cancelSyncBtn.disabled=true;btn.textContent='♫ Actualizar playlist';if(!syncCancelled){syncStage.textContent='Proceso finalizado';syncBar.style.width='100%';}}
 }
 document.querySelector('#syncPlaylistBtn').addEventListener('click',buildNeighborsPlaylistFast);
 document.querySelector('#cancelSyncBtn').addEventListener('click',()=>{syncCancelled=true;cancelSyncBtn.disabled=true;syncStage.textContent='Deteniendo…';syncCurrent.textContent='Esperando que terminen las búsquedas actualmente en curso.';});
