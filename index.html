@@ -12,12 +12,14 @@
 </head>
 <body>
   <div class="grain"></div>
+  <div class="window-chrome"><span>RECOMENDAPP</span><div><button id="windowMinimize" aria-label="Minimizar">—</button><button id="windowMaximize" aria-label="Maximizar">□</button><button id="windowClose" class="window-close" aria-label="Cerrar">×</button></div></div>
   <header class="topbar">
     <a class="brand" href="#"><span class="brand-mark">R</span> recomendapp</a>
     <nav aria-label="Principal">
       <button class="nav-link active" data-view="discover">Descubrir</button>
       <button class="nav-link" data-view="neighbors">Neighbors</button>
       <button class="nav-link" data-view="compare">Compare</button>
+      <button class="nav-link" data-view="maxicover">Maxicover</button>
       <button class="nav-link" id="savedNav">Guardados <span id="savedCount">0</span></button>
     </nav>
     <button class="profile" id="settingsBtn" aria-label="Configuración">⚙</button>
@@ -31,7 +33,7 @@
       <div class="connections">
         <button class="connect spotify" data-service="Spotify"><i>●</i><span><small>Conectar</small>Spotify</span><b>+</b></button>
         <button class="connect lastfm" data-service="Last.fm"><i>◉</i><span><small>Conectar</small>Last.fm</span><b>+</b></button>
-        <button class="connect soundcloud" data-service="SoundCloud"><i>☁</i><span><small>Conectar</small>SoundCloud</span><b>+</b></button>
+        <button class="connect youtube" data-service="YouTube"><i>▶</i><span><small>Conectar</small>YouTube</span><b>+</b></button>
       </div>
     </section>
 
@@ -64,6 +66,16 @@
       <div class="sync-progress" id="syncProgress" hidden><div class="sync-progress-head"><strong id="syncStage">Preparando…</strong><span id="syncNumbers">0 / 0</span><button id="cancelSyncBtn">Parar búsqueda</button></div><div class="progress-track"><i id="syncBar"></i></div><div class="sync-current" id="syncCurrent">Esperando canciones…</div><div class="sync-hint" id="syncHint">La primera sincronización puede tomar unos minutos.</div></div>
       <section class="scrobble-preview" id="scrobblePreview" hidden><div class="scrobble-preview-head"><div><span class="kicker">SCROBBLES ENCONTRADOS</span><h2 id="scrobblePreviewTitle">0 escuchas</h2><p id="scrobblePreviewMeta"></p></div><button class="sync-playlist" id="createCatalogPlaylistsBtn">Crear playlists</button></div><div class="scrobble-list" id="scrobbleList"></div></section>
       <div class="neighbors-grid" id="neighborsGrid"></div>
+      <section class="followed-section"><div class="section-head"><div><span class="kicker">PERFILES VINCULADOS</span><h2>Followed in Spotify</h2><p>Playlists públicas de los perfiles de Spotify conectados a tus neighbors.</p></div><button class="sync-playlist" id="loadFollowedBtn">Cargar todas</button></div><div id="followedPlaylists" class="followed-playlists"></div></section>
+    </section>
+
+    <section class="maxicover-view" id="maxicoverView" hidden>
+      <div class="compare-hero"><span class="kicker">EXPANSIÓN SIN FRONTERAS</span><h1>Maxicover</h1><p>Combina varios artistas y convierte todas las recomendaciones disponibles de Last.fm en playlists de Spotify y YouTube.</p></div>
+      <div class="maxicover-panel"><label>Buscar artista en Last.fm<input id="maxicoverArtist" placeholder="The Weeknd, Bladee, Tito Rojas…"></label><button id="addMaxicoverArtist" class="add-neighbor">Añadir artista</button></div>
+      <div class="maxicover-artists" id="maxicoverArtists"></div>
+      <div class="quota-panel"><strong>Estado del catálogo</strong><span id="spotifyQuota">Spotify no publica el cupo restante · 0 consultas en esta sesión · sin espera confirmada</span><span id="youtubeQuota">YouTube tampoco publica un contador restante</span></div>
+      <button id="runMaxicover" class="sync-playlist">Crear playlist Maxicover</button>
+      <div class="sync-progress" id="maxicoverProgress" hidden><div class="sync-progress-head"><strong id="maxicoverStage">Preparando…</strong><span id="maxicoverNumbers"></span><button id="cancelMaxicover">Parar búsqueda</button></div><div class="progress-track"><i id="maxicoverBar"></i></div><div class="sync-current" id="maxicoverCurrent"></div></div>
     </section>
 
     <section class="compare-view" id="compareView" hidden>
@@ -86,11 +98,11 @@
       <label>Usuario de Last.fm<input id="lastfmUser" autocomplete="off" placeholder="Tu nombre de usuario"></label>
       <label>API key de Last.fm<input id="lastfmApiKey" type="password" autocomplete="off" placeholder="32 caracteres"></label>
       <label>Client ID de Spotify<input id="spotifyClientId" autocomplete="off" placeholder="Client ID de tu aplicación"></label>
-      <label>Client ID de SoundCloud <small>requiere una app registrada en SoundCloud</small><input id="soundcloudClientId" autocomplete="off" placeholder="Client ID de tu aplicación"></label>
-      <label>Client secret de SoundCloud<input id="soundcloudClientSecret" type="password" autocomplete="off" placeholder="Se guardará cifrado en Windows"></label>
+      <label>Client ID de Google / YouTube<input id="googleClientId" autocomplete="off" placeholder="Cliente OAuth de aplicación de escritorio"></label>
       <div class="dialog-actions"><button class="secondary" value="cancel">Cancelar</button><button class="primary" id="saveSettings" value="default">Guardar conexiones</button></div>
     </form>
   </dialog>
+  <dialog id="playlistDetailDialog"><div class="playlist-detail"><div class="dialog-head"><div><span class="kicker">PLAYLIST DE SPOTIFY</span><h2 id="playlistDetailTitle">Playlist</h2></div><button class="close" id="closePlaylistDetail">×</button></div><p id="playlistDetailStatus"></p><div class="result-tracks" id="playlistDetailTracks"></div></div></dialog>
   <dialog id="neighborDialog">
     <form method="dialog" id="neighborForm">
       <div class="dialog-head"><div><span class="kicker">NUEVO VECINO</span><h2>Conecta su mundo</h2></div><button class="close" value="cancel">×</button></div>

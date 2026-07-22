@@ -1,6 +1,6 @@
 {
   "name": "recomendapp",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Descubrimiento musical personal con Spotify y Last.fm",
   "main": "main.cjs",
   "scripts": {

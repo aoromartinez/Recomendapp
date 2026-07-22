@@ -5,7 +5,8 @@ contextBridge.exposeInMainWorld('musicAPI', {
   lastfm:(method,params)=>ipcRenderer.invoke('lastfm:request',method,params),
   connectSpotify:()=>ipcRenderer.invoke('spotify:connect'), spotify:(endpoint,options)=>ipcRenderer.invoke('spotify:request',endpoint,options),
   cancelSpotify:group=>ipcRenderer.invoke('spotify:cancel',group),
-  connectSoundCloud:()=>ipcRenderer.invoke('soundcloud:connect'), soundcloud:(endpoint,options)=>ipcRenderer.invoke('soundcloud:request',endpoint,options), cancelSoundCloud:()=>ipcRenderer.invoke('soundcloud:cancel'),
+  connectYouTube:()=>ipcRenderer.invoke('youtube:connect'), youtube:(endpoint,options)=>ipcRenderer.invoke('youtube:request',endpoint,options), cancelYouTube:()=>ipcRenderer.invoke('youtube:cancel'),
+  minimize:()=>ipcRenderer.invoke('window:minimize'), maximize:()=>ipcRenderer.invoke('window:maximize'), close:()=>ipcRenderer.invoke('window:close'), setProcessActive:active=>ipcRenderer.invoke('process:active',active),
   onSpotifyRateLimit:callback=>ipcRenderer.on('spotify:rate-limit',(_,data)=>callback(data)),
   onSpotifyTimeout:callback=>ipcRenderer.on('spotify:request-timeout',(_,data)=>callback(data))
 });
