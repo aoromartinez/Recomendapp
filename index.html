@@ -71,8 +71,9 @@
 
     <section class="maxicover-view" id="maxicoverView" hidden>
       <div class="compare-hero"><span class="kicker">EXPANSIÓN SIN FRONTERAS</span><h1>Maxicover</h1><p>Combina varios artistas y convierte todas las recomendaciones disponibles de Last.fm en playlists de Spotify y YouTube.</p></div>
-      <div class="maxicover-panel"><label>Buscar artista en Last.fm<input id="maxicoverArtist" placeholder="The Weeknd, Bladee, Tito Rojas…"></label><button id="addMaxicoverArtist" class="add-neighbor">Añadir artista</button></div>
+      <div class="maxicover-panel"><label>Buscar artista en Last.fm<div class="artist-search-wrap"><input id="maxicoverArtist" autocomplete="off" placeholder="The Weeknd, Bladee, Tito Rojas…"><div id="maxicoverSuggestions" class="artist-suggestions" hidden></div></div></label><button id="addMaxicoverArtist" class="add-neighbor">Añadir artista</button></div>
       <div class="maxicover-artists" id="maxicoverArtists"></div>
+      <section class="related-section" id="maxicoverRelatedSection" hidden><div class="section-head"><div><span class="kicker">SUGERENCIAS DE LAST.FM</span><h2>Artistas relacionados</h2><p>Todos están seleccionados inicialmente. Pulsa uno para excluirlo o incluirlo.</p></div><span id="maxicoverRelatedCount"></span></div><div class="related-grid" id="maxicoverRelated"></div></section>
       <div class="quota-panel"><strong>Estado del catálogo</strong><span id="spotifyQuota">Spotify no publica el cupo restante · 0 consultas en esta sesión · sin espera confirmada</span><span id="youtubeQuota">YouTube tampoco publica un contador restante</span></div>
       <button id="runMaxicover" class="sync-playlist">Crear playlist Maxicover</button>
       <div class="sync-progress" id="maxicoverProgress" hidden><div class="sync-progress-head"><strong id="maxicoverStage">Preparando…</strong><span id="maxicoverNumbers"></span><button id="cancelMaxicover">Parar búsqueda</button></div><div class="progress-track"><i id="maxicoverBar"></i></div><div class="sync-current" id="maxicoverCurrent"></div></div>
