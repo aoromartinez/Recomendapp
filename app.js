@@ -31,6 +31,7 @@ grid.addEventListener('click',e=>{const btn=e.target.closest('.save');if(!btn)re
 const api=window.musicAPI;
 if(api)api.version().then(version=>document.querySelector('#appVersion').textContent=`v${version}`);
 if(api)api.onSpotifyRateLimit(({seconds,attempt})=>{syncLastProgress=Date.now();syncHint.textContent=`Spotify confirmó un límite temporal. Esperando ${seconds}s antes de reintentar (${attempt}/5).`;});
+if(api)api.onSpotifyTimeout(({attempt})=>{syncHint.textContent=`Spotify tardó más de 15 segundos. Reintentando esta canción (${attempt}/1)…`;});
 const dialog=document.querySelector('#settingsDialog');
 async function loadConfig(){if(!api)return;const c=await api.getConfig();lastfmUser.value=c.lastfmUser;lastfmApiKey.value=c.lastfmApiKey;spotifyClientId.value=c.spotifyClientId;setConnected('Last.fm',!!(c.lastfmUser&&c.lastfmApiKey));setConnected('Spotify',c.spotifyConnected);if(c.lastfmUser&&c.lastfmApiKey)await loadRealRecommendations();}
 function setConnected(service,on){const btn=[...document.querySelectorAll('.connect')].find(b=>b.dataset.service===service);btn.classList.toggle('connected',on);btn.querySelector('small').textContent=on?'Conectado':'Conectar';btn.querySelector('b').textContent=on?'✓':'+';}
@@ -73,13 +74,13 @@ async function spotifyUrisFast(tracks,btn){
   const unique=[...new Map(tracks.map(t=>[`${t.artist}\u0000${t.name}`.toLowerCase(),t])).values()];
   const uriMap=new Map(JSON.parse(localStorage.getItem('recomendapp-track-uri-cache')||'[]'));
   const pending=unique.filter(t=>!uriMap.has(`${t.artist}\u0000${t.name}`.toLowerCase()));
-  let cursor=0,completed=0;
+  let cursor=0,completed=0,deferred=0;
   const persist=()=>localStorage.setItem('recomendapp-track-uri-cache',JSON.stringify([...uriMap]));
-  async function worker(){while(cursor<pending.length){if(syncCancelled)return;const track=pending[cursor++];syncCurrent.textContent=`Buscando: ${track.artist} — ${track.name}`;markSyncProgress(`Consultando el catálogo para ${track.artist} — ${track.name}.`);const key=`${track.artist}\u0000${track.name}`.toLowerCase();const q=encodeURIComponent(`track:${track.name} artist:${track.artist}`);const result=await api.spotify(`/search?q=${q}&type=track&limit=1`);uriMap.set(key,result.tracks?.items?.[0]?.uri||'');completed++;btn.textContent=`Spotify: ${completed}/${pending.length}`;syncStage.textContent='Buscando canciones en Spotify';syncNumbers.textContent=`${completed} / ${pending.length}`;syncBar.style.width=`${pending.length?completed/pending.length*100:100}%`;markSyncProgress(`Última coincidencia completada: ${track.artist} — ${track.name}.`);if(completed%20===0)persist();}}
-  if(pending.length)await Promise.all(Array.from({length:Math.min(10,pending.length)},worker));
+  async function worker(){while(cursor<pending.length){if(syncCancelled)return;const track=pending[cursor++];syncCurrent.textContent=`Buscando: ${track.artist} — ${track.name}`;markSyncProgress(`Consultando el catálogo para ${track.artist} — ${track.name}.`);const key=`${track.artist}\u0000${track.name}`.toLowerCase();const q=encodeURIComponent(`track:${track.name} artist:${track.artist}`);try{const result=await api.spotify(`/search?q=${q}&type=track&limit=1`,{timeoutMs:15000});uriMap.set(key,result.tracks?.items?.[0]?.uri||'');markSyncProgress(`Última coincidencia completada: ${track.artist} — ${track.name}.`);}catch(error){if(error.message.includes('SPOTIFY_TIMEOUT')){deferred++;syncHint.textContent=`Sin respuesta para ${track.artist} — ${track.name}. Queda pendiente para la próxima sincronización.`;}else throw error;}completed++;btn.textContent=`Spotify: ${completed}/${pending.length}`;syncStage.textContent='Buscando canciones en Spotify';syncNumbers.textContent=`${completed} / ${pending.length}${deferred?` · ${deferred} pendientes`:''}`;syncBar.style.width=`${pending.length?completed/pending.length*100:100}%`;if(completed%20===0)persist();}}
+  if(pending.length)await Promise.all(Array.from({length:Math.min(2,pending.length)},worker));
   persist();
   if(syncCancelled)throw new Error('__SYNC_CANCELLED__');
-  return {uris:tracks.map(t=>uriMap.get(`${t.artist}\u0000${t.name}`.toLowerCase())).filter(Boolean),cached:unique.length-pending.length,searched:pending.length};
+  return {uris:tracks.map(t=>uriMap.get(`${t.artist}\u0000${t.name}`.toLowerCase())).filter(Boolean),cached:unique.length-pending.length,searched:pending.length,deferred};
 }
 async function buildNeighborsPlaylistFast(){
   if(!currentNeighborNames.length){notify('Añade al menos un vecino primero');return;}
@@ -93,7 +94,7 @@ async function buildNeighborsPlaylistFast(){
     if(!playlistId){const created=await api.spotify('/me/playlists',{method:'POST',body:{name:'Neighbors — Recomendapp',public:false,description:'Scrobbles de mis vecinos con límites personalizados. Actualizada por Recomendapp.'}});playlistId=created.id;playlistUrl=created.external_urls?.spotify;localStorage.setItem('recomendapp-neighbors-playlist',playlistId);localStorage.setItem('recomendapp-neighbors-playlist-url',playlistUrl||'');}
     btn.textContent=`Guardando ${found.length} scrobbles…`;await api.spotify(`/playlists/${playlistId}/items`,{method:'PUT',body:{uris:found.slice(0,100)}});
     for(let i=100;i<found.length;i+=100){btn.textContent=`Guardando ${Math.min(i+100,found.length)}/${found.length}…`;await api.spotify(`/playlists/${playlistId}/items`,{method:'POST',body:{uris:found.slice(i,i+100)}});}
-    notify(`${found.length}/${tracks.length} scrobbles · ${resolved.cached} coincidencias desde caché`);if(playlistUrl)window.open(playlistUrl,'_blank');
+    notify(`${found.length}/${tracks.length} scrobbles · ${resolved.cached} desde caché${resolved.deferred?` · ${resolved.deferred} pendientes`:''}`);if(playlistUrl)window.open(playlistUrl,'_blank');
   }catch(e){if(e.message==='__SYNC_CANCELLED__'){syncStage.textContent='Búsqueda detenida';syncCurrent.textContent='El progreso encontrado quedó guardado para la próxima vez.';notify('Búsqueda detenida')}else if(/scope|permission|403/i.test(e.message)){notify('Spotify necesita permisos. Autoriza de nuevo…');try{await api.connectSpotify();await buildNeighborsPlaylistFast();}catch(authError){notify(authError.message)}}else notify(e.message);}finally{clearInterval(syncHintTimer);btn.disabled=false;cancelSyncBtn.disabled=true;btn.textContent='♫ Actualizar playlist';if(!syncCancelled){syncStage.textContent='Proceso finalizado';syncBar.style.width='100%';}}
 }
 document.querySelector('#syncPlaylistBtn').addEventListener('click',buildNeighborsPlaylistFast);
