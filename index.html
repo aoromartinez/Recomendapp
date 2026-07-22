@@ -31,6 +31,7 @@
       <div class="connections">
         <button class="connect spotify" data-service="Spotify"><i>●</i><span><small>Conectar</small>Spotify</span><b>+</b></button>
         <button class="connect lastfm" data-service="Last.fm"><i>◉</i><span><small>Conectar</small>Last.fm</span><b>+</b></button>
+        <button class="connect youtube" data-service="YouTube"><i>▶</i><span><small>Conectar</small>YouTube</span><b>+</b></button>
       </div>
     </section>
 
@@ -58,9 +59,10 @@
     </section>
 
     <section class="neighbors-view" id="neighborsView" hidden>
-      <div class="neighbors-hero"><div><span class="kicker">CURADURÍA HUMANA</span><h1>Neighbors</h1><p>Personas cuya forma de escuchar se parece a la tuya. Entra en sus mundos, no en otro algoritmo.</p></div><div class="neighbor-actions"><select id="neighborPeriod" aria-label="Periodo de scrobbles"><option value="7">7 días</option><option value="14">2 semanas</option><option value="30">1 mes</option><option value="180">6 meses</option></select><button class="sync-playlist" id="syncPlaylistBtn">♫ Actualizar playlist</button><button class="add-neighbor" id="addNeighborBtn">＋ Añadir vecino</button></div></div>
+      <div class="neighbors-hero"><div><span class="kicker">CURADURÍA HUMANA</span><h1>Neighbors</h1><p>Personas cuya forma de escuchar se parece a la tuya. Entra en sus mundos, no en otro algoritmo.</p></div><div class="neighbor-actions"><select id="neighborPeriod" aria-label="Periodo de scrobbles"><option value="7">7 días</option><option value="14">2 semanas</option><option value="30">1 mes</option><option value="180">6 meses</option></select><button class="sync-playlist" id="syncPlaylistBtn">Ver scrobbles</button><button class="add-neighbor" id="addNeighborBtn">＋ Añadir vecino</button></div></div>
       <div class="neighbors-status" id="neighborsStatus">Buscando tus vecinos musicales…</div>
       <div class="sync-progress" id="syncProgress" hidden><div class="sync-progress-head"><strong id="syncStage">Preparando…</strong><span id="syncNumbers">0 / 0</span><button id="cancelSyncBtn">Parar búsqueda</button></div><div class="progress-track"><i id="syncBar"></i></div><div class="sync-current" id="syncCurrent">Esperando canciones…</div><div class="sync-hint" id="syncHint">La primera sincronización puede tomar unos minutos.</div></div>
+      <section class="scrobble-preview" id="scrobblePreview" hidden><div class="scrobble-preview-head"><div><span class="kicker">SCROBBLES ENCONTRADOS</span><h2 id="scrobblePreviewTitle">0 escuchas</h2><p id="scrobblePreviewMeta"></p></div><button class="sync-playlist" id="createCatalogPlaylistsBtn">Crear playlists</button></div><div class="scrobble-list" id="scrobbleList"></div></section>
       <div class="neighbors-grid" id="neighborsGrid"></div>
     </section>
 
@@ -84,6 +86,7 @@
       <label>Usuario de Last.fm<input id="lastfmUser" autocomplete="off" placeholder="Tu nombre de usuario"></label>
       <label>API key de Last.fm<input id="lastfmApiKey" type="password" autocomplete="off" placeholder="32 caracteres"></label>
       <label>Client ID de Spotify<input id="spotifyClientId" autocomplete="off" placeholder="Client ID de tu aplicación"></label>
+      <label>Client ID de Google / YouTube<input id="googleClientId" autocomplete="off" placeholder="Cliente OAuth de aplicación de escritorio"></label>
       <div class="dialog-actions"><button class="secondary" value="cancel">Cancelar</button><button class="primary" id="saveSettings" value="default">Guardar conexiones</button></div>
     </form>
   </dialog>
