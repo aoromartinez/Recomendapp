@@ -1,0 +1,26 @@
+{
+  "name": "recomendapp",
+  "version": "0.6.0",
+  "description": "Descubrimiento musical personal con Spotify y Last.fm",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis",
+    "publish": "electron-builder --win nsis --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
+  },
+  "devDependencies": {
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.personal.recomendapp",
+    "productName": "Recomendapp",
+    "files": ["index.html", "styles.css", "app.js", "main.cjs", "preload.cjs"],
+    "win": { "target": "nsis" },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true },
+    "publish": [{ "provider": "github", "owner": "aoromartinez", "repo": "Recomendapp", "releaseType": "release" }]
+  }
+}

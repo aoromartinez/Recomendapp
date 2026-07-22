@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Recomendapp — descubrimiento musical hecho para ti." />
+  <title>Recomendapp — Tu próxima obsesión</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="grain"></div>
+  <header class="topbar">
+    <a class="brand" href="#"><span class="brand-mark">R</span> recomendapp</a>
+    <nav aria-label="Principal">
+      <button class="nav-link active" data-view="discover">Descubrir</button>
+      <button class="nav-link" data-view="neighbors">Neighbors</button>
+      <button class="nav-link" data-view="compare">Compare</button>
+      <button class="nav-link" id="savedNav">Guardados <span id="savedCount">0</span></button>
+    </nav>
+    <button class="profile" id="settingsBtn" aria-label="Configuración">⚙</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow"><span></span> MEZCLA DEL MARTES</div>
+      <h1>Música que todavía<br><em>no sabes que amas.</em></h1>
+      <p>Cruzamos tus escuchas de Last.fm y Spotify para encontrar artistas que encajan contigo, no con todo el mundo.</p>
+      <div class="connections">
+        <button class="connect spotify" data-service="Spotify"><i>●</i><span><small>Conectar</small>Spotify</span><b>+</b></button>
+        <button class="connect lastfm" data-service="Last.fm"><i>◉</i><span><small>Conectar</small>Last.fm</span><b>+</b></button>
+      </div>
+    </section>
+
+    <section class="discovery">
+      <div class="section-head">
+        <div>
+          <span class="kicker">SELECCIÓN PERSONAL</span>
+          <h2>Tu radar de hoy</h2>
+        </div>
+        <div class="moods" role="group" aria-label="Filtrar por ambiente">
+          <button class="mood active" data-mood="Todo">Todo</button>
+          <button class="mood" data-mood="Calma">Calma</button>
+          <button class="mood" data-mood="Energía">Energía</button>
+          <button class="mood" data-mood="Noche">Noche</button>
+        </div>
+      </div>
+      <div class="artist-grid" id="artistGrid"></div>
+      <button class="refresh" id="refreshBtn"><span>↻</span> Renovar recomendaciones</button>
+    </section>
+
+    <section class="insight" id="insightSection">
+      <span class="insight-label">TU ADN MUSICAL</span>
+      <blockquote>“Melancolía bailable, texturas cálidas<br>y una debilidad por los bajos profundos.”</blockquote>
+      <div class="tags"><span>dream pop</span><span>indietrónica</span><span>neo-soul</span><span>art pop</span></div>
+    </section>
+
+    <section class="neighbors-view" id="neighborsView" hidden>
+      <div class="neighbors-hero"><div><span class="kicker">CURADURÍA HUMANA</span><h1>Neighbors</h1><p>Personas cuya forma de escuchar se parece a la tuya. Entra en sus mundos, no en otro algoritmo.</p></div><div class="neighbor-actions"><select id="neighborPeriod" aria-label="Periodo de scrobbles"><option value="7">7 días</option><option value="14">2 semanas</option><option value="30">1 mes</option><option value="180">6 meses</option></select><button class="sync-playlist" id="syncPlaylistBtn">♫ Actualizar playlist</button><button class="add-neighbor" id="addNeighborBtn">＋ Añadir vecino</button></div></div>
+      <div class="neighbors-status" id="neighborsStatus">Buscando tus vecinos musicales…</div>
+      <div class="sync-progress" id="syncProgress" hidden><div class="sync-progress-head"><strong id="syncStage">Preparando…</strong><span id="syncNumbers">0 / 0</span></div><div class="progress-track"><i id="syncBar"></i></div><div class="sync-current" id="syncCurrent">Esperando canciones…</div></div>
+      <div class="neighbors-grid" id="neighborsGrid"></div>
+    </section>
+
+    <section class="compare-view" id="compareView" hidden>
+      <div class="compare-hero"><span class="kicker">LIMPIEZA INTELIGENTE</span><h1>Compare</h1><p>Resta lo conocido. Quédate únicamente con lo nuevo.</p></div>
+      <div class="compare-panel">
+        <label>Playlist fuente <small>De aquí saldrán las canciones</small><select id="sourcePlaylist"><option>Cargando playlists…</option></select></label>
+        <div class="minus">−</div>
+        <label>Playlist de referencia <small>Lo que ya tienes aquí se eliminará</small><select id="referencePlaylist"><option>Cargando playlists…</option></select></label>
+        <div class="compare-mode"><span>COMPARAR POR</span><button class="mode-btn active" data-mode="track">Canciones</button><button class="mode-btn" data-mode="artist">Artistas</button></div>
+        <button class="compare-btn" id="compareBtn">Comparar playlists →</button>
+      </div>
+      <div class="compare-result" id="compareResult" hidden><div class="result-head"><div><span class="kicker">RESULTADO</span><h2 id="resultTitle"></h2></div><button class="save-result" id="saveCompareBtn">＋ Guardar como playlist</button></div><div class="result-tracks" id="resultTracks"></div></div>
+    </section>
+  </main>
+
+  <dialog id="settingsDialog">
+    <form method="dialog" id="settingsForm">
+      <div class="dialog-head"><div><span class="kicker">CONEXIONES PERSONALES</span><h2>Tu música, vinculada</h2></div><button class="close" value="cancel">×</button></div>
+      <p>Estos datos se guardan únicamente en este equipo.</p>
+      <label>Usuario de Last.fm<input id="lastfmUser" autocomplete="off" placeholder="Tu nombre de usuario"></label>
+      <label>API key de Last.fm<input id="lastfmApiKey" type="password" autocomplete="off" placeholder="32 caracteres"></label>
+      <label>Client ID de Spotify<input id="spotifyClientId" autocomplete="off" placeholder="Client ID de tu aplicación"></label>
+      <div class="dialog-actions"><button class="secondary" value="cancel">Cancelar</button><button class="primary" id="saveSettings" value="default">Guardar conexiones</button></div>
+    </form>
+  </dialog>
+  <dialog id="neighborDialog">
+    <form method="dialog" id="neighborForm">
+      <div class="dialog-head"><div><span class="kicker">NUEVO VECINO</span><h2>Conecta su mundo</h2></div><button class="close" value="cancel">×</button></div>
+      <p>El usuario de Last.fm es necesario. El perfil de Spotify puede añadirse ahora o después.</p>
+      <label>Usuario de Last.fm<input id="neighborLastfm" autocomplete="off" placeholder="ej. musical_neighbor" required></label>
+      <label>Enlace del perfil de Spotify <small>opcional</small><input id="neighborSpotify" autocomplete="off" placeholder="https://open.spotify.com/user/..."></label>
+      <label>Límite de scrobbles<input id="neighborLimit" type="number" min="0" step="1" value="250"><small>Usa 0 para no establecer un límite.</small></label>
+      <div class="dialog-actions"><button class="secondary" value="cancel">Cancelar</button><button class="primary" value="default">Añadir vecino</button></div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <footer><span>recomendapp / hecho para una sola persona</span><span>Tus datos se quedan contigo · <b id="appVersion">versión local</b></span></footer>
+  <script src="app.js"></script>
+</body>
+</html>
