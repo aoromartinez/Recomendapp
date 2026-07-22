@@ -26,7 +26,9 @@
     <button class="profile" id="settingsBtn" aria-label="Configuración">⚙</button>
   </header>
 
-  <main>
+  <aside class="app-sidebar" id="appSidebar"><button class="sidebar-collapse" id="sidebarCollapse" title="Contraer panel">‹</button><div class="sidebar-mark">R</div><nav aria-label="Principal"><button class="nav-link active" data-view="compare-v1"><b>⌂</b><span>Casa</span></button><button class="nav-link" data-view="songs"><b>♫</b><span>Songs</span></button><button class="nav-link" data-view="library"><b>▤</b><span>Playlists</span></button><button class="nav-link" data-view="labs"><b>⚗</b><span>Labs</span></button></nav><button class="profile" id="sidebarSettings" aria-label="Configuración"><b>⚙</b><span>Configurar</span></button></aside>
+  <main class="app-main">
+    <section class="labs-view" id="labsView" hidden><div class="labs-head"><span class="kicker">EXPERIMENTOS HUMANOS</span><h1>Labs</h1><p>Herramientas para explorar los gustos de personas y artistas fuera de tu biblioteca.</p></div><div class="labs-tools"><button data-lab="discover"><strong>Descubrir</strong><span>Radar personal</span></button><button data-lab="neighbors"><strong>Neighbors</strong><span>Escuchas de otras personas</span></button><button data-lab="maxicover"><strong>Maxicover</strong><span>Expansión por artistas</span></button></div></section>
     <section class="hero">
       <div class="eyebrow"><span></span> MEZCLA DEL MARTES</div>
       <h1>Música que todavía<br><em>no sabes que amas.</em></h1>
@@ -80,7 +82,13 @@
       <div class="sync-progress" id="maxicoverProgress" hidden><div class="sync-progress-head"><strong id="maxicoverStage">Preparando…</strong><span id="maxicoverNumbers"></span><button id="cancelMaxicover">Parar búsqueda</button></div><div class="progress-track"><i id="maxicoverBar"></i></div><div class="sync-current" id="maxicoverCurrent"></div></div>
     </section>
 
-    <section class="compare-view" id="compareView" hidden>
+    <section class="compare-view v1-home" id="compareV1View">
+      <div class="compare-hero"><span class="kicker">DESCUBRIMIENTO HUMANO</span><h1>Encuentra lo nuevo entre otros gustos.</h1><p>Tu playlist primaria define lo que ya conoces. Las demás aportan canciones o artistas que todavía no forman parte de tu mundo.</p></div>
+      <div class="compare-workspace"><section class="primary-playlist"><span class="step">01 · TU MUNDO</span><label>Playlist primaria <small>La colección que contiene tus gustos</small><select id="primaryPlaylist"><option>Cargando playlists…</option></select></label><p>Esta selección quedará guardada como tu punto de partida.</p></section><section class="candidate-playlists"><span class="step">02 · OTROS MUNDOS</span><div class="candidate-head"><div><strong>Playlists para contrastar</strong><small>Puedes elegir todas las que quieras</small></div><button id="selectAllCompare">Seleccionar todas</button></div><div id="comparePlaylistChoices" class="compare-playlist-choices"></div></section></div>
+      <div class="compare-toolbar"><div class="compare-mode v1-mode"><span>DESCUBRIR POR</span><button class="mode-btn active" data-v1-mode="track">Canciones</button><button class="mode-btn" data-v1-mode="artist">Artistas</button></div><button class="compare-btn" id="compareV1Btn">Encontrar novedades →</button></div>
+      <div class="compare-result" id="compareV1Result" hidden><div class="result-head"><div><span class="kicker">DESCUBRIMIENTOS</span><h2 id="resultV1Title"></h2></div><div class="result-actions"><label class="cover-picker">Imagen<input id="compareCover" type="file" accept="image/jpeg,image/png"></label><button class="save-result" id="saveCompareV1Btn">＋ Crear playlist</button></div></div><div class="result-tracks" id="resultV1Tracks"></div></div>
+    </section>
+    <section class="compare-view legacy-compare" id="compareView" hidden>
       <div class="compare-hero"><span class="kicker">LIMPIEZA INTELIGENTE</span><h1>Compare</h1><p>Resta lo conocido. Quédate únicamente con lo nuevo.</p></div>
       <div class="compare-panel">
         <label>Playlist fuente <small>De aquí saldrán las canciones</small><select id="sourcePlaylist"><option>Cargando playlists…</option></select></label>
@@ -92,6 +100,7 @@
       <div class="compare-result" id="compareResult" hidden><div class="result-head"><div><span class="kicker">RESULTADO</span><h2 id="resultTitle"></h2></div><button class="save-result" id="saveCompareBtn">＋ Guardar como playlist</button></div><div class="result-tracks" id="resultTracks"></div></div>
     </section>
     <section class="library-view" id="libraryView" hidden><div class="compare-hero"><span class="kicker">FUENTE MAESTRA</span><h1>Playlists internas</h1><p>Las recomendaciones se guardan aquí primero y se sincronizan con Spotify o YouTube cuando cada servicio esté disponible.</p></div><div class="library-layout"><aside id="libraryPlaylists" class="library-playlists"></aside><section id="libraryDetail" class="library-detail"><div class="neighbors-status">Selecciona una playlist interna.</div></section></div></section>
+    <section class="songs-view" id="songsView" hidden><div class="compare-hero"><span class="kicker">ÍNDICE MUSICAL</span><h1>Songs</h1><p>Todas las canciones descubiertas por Recomendapp, organizadas por disponibilidad.</p></div><div class="songs-toolbar"><select id="songsPlaylist"></select><label>Añadir a <select id="songsTargetPlaylist"></select></label><span id="songsCount"></span></div><div class="songs-list" id="songsList"></div></section>
   </main>
 
   <dialog id="settingsDialog">
